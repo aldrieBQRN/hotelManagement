@@ -14,8 +14,10 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.RowFilter;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -30,6 +32,8 @@ public class manageRoom extends javax.swing.JInternalFrame {
         showRoom();
         background();
         designTable();
+        autoUserID();
+        txtrid.setEditable(false);
     }
     
     Connection con; 
@@ -69,6 +73,33 @@ public class manageRoom extends javax.swing.JInternalFrame {
         }
     }
     
+    public final void autoUserID() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/hotel_management", "root", "");
+
+            pst = con.prepareStatement("SELECT MAX(roomID) FROM room");
+            rs = pst.executeQuery();
+
+            if (rs.next()) {
+                String maxID = rs.getString(1); 
+
+                if (maxID != null) {
+                    int num = Integer.parseInt(maxID) + 1; 
+                    txtrid.setText(String.valueOf(num)); 
+                } else {
+                    txtrid.setText("1");
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(manageRoom.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Error generating Product ID!", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(manageRoom.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    
     public final void background(){
         this.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         BasicInternalFrameUI UI = (BasicInternalFrameUI) this.getUI();
@@ -90,8 +121,6 @@ public class manageRoom extends javax.swing.JInternalFrame {
 
         objectTable1 = new org.jfree.util.ObjectTable();
         jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tblroom = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
@@ -110,44 +139,17 @@ public class manageRoom extends javax.swing.JInternalFrame {
         txtsearch = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         cmbrtype = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblroom = new rojerusan.RSTableMetro();
+        jLabel5 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(153, 153, 153));
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(52, 48, 62));
         jPanel1.setPreferredSize(new java.awt.Dimension(1019, 600));
         jPanel1.setSize(new java.awt.Dimension(1019, 600));
 
-        tblroom.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Room ID", "Room Type", "Room Fee", "Status"
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        tblroom.setGridColor(new java.awt.Color(102, 0, 51));
-        tblroom.setRowHeight(20);
-        tblroom.setSelectionBackground(new java.awt.Color(102, 0, 51));
-        tblroom.setSelectionForeground(new java.awt.Color(255, 255, 255));
-        tblroom.setShowGrid(true);
-        tblroom.getTableHeader().setReorderingAllowed(false);
-        tblroom.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tblroomMouseClicked(evt);
-            }
-        });
-        jScrollPane1.setViewportView(tblroom);
-
-        jPanel3.setBackground(new java.awt.Color(102, 0, 51));
+        jPanel3.setBackground(new java.awt.Color(90, 84, 117));
         jPanel3.setForeground(new java.awt.Color(255, 255, 255));
 
         jLabel10.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
@@ -174,7 +176,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
                 .addGap(14, 14, 14))
         );
 
-        jPanel10.setBackground(new java.awt.Color(102, 0, 51));
+        jPanel10.setBackground(new java.awt.Color(90, 84, 117));
 
         jLabel12.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
@@ -200,7 +202,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
                 .addGap(14, 14, 14))
         );
 
-        jPanel14.setBackground(new java.awt.Color(102, 0, 51));
+        jPanel14.setBackground(new java.awt.Color(90, 84, 117));
 
         jLabel13.setBackground(new java.awt.Color(102, 0, 51));
         jLabel13.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
@@ -227,7 +229,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
                 .addGap(14, 14, 14))
         );
 
-        jPanel15.setBackground(new java.awt.Color(102, 0, 51));
+        jPanel15.setBackground(new java.awt.Color(90, 84, 117));
 
         jLabel14.setBackground(new java.awt.Color(102, 0, 51));
         jLabel14.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
@@ -261,9 +263,11 @@ public class manageRoom extends javax.swing.JInternalFrame {
         });
 
         jLabel8.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(242, 242, 242));
         jLabel8.setText("ROOM FEE");
 
         jLabel9.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(242, 242, 242));
         jLabel9.setText("ROOM STATUS");
 
         txtrid.addActionListener(new java.awt.event.ActionListener() {
@@ -273,9 +277,11 @@ public class manageRoom extends javax.swing.JInternalFrame {
         });
 
         jLabel7.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(242, 242, 242));
         jLabel7.setText("ROOM TYPE");
 
         jLabel6.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(242, 242, 242));
         jLabel6.setText("ROOM ID");
 
         cmbrstatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Available", "Booked", "Under Maintenance" }));
@@ -291,15 +297,55 @@ public class manageRoom extends javax.swing.JInternalFrame {
                 txtsearchActionPerformed(evt);
             }
         });
+        txtsearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtsearchKeyReleased(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("SEARCH");
 
         cmbrtype.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Single", "Double", "Triple", "Suite" }));
         cmbrtype.setSelectedIndex(-1);
 
-        jLabel2.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
-        jLabel2.setText("ROOM LIST");
+        tblroom.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Room Number", "Room Type", "Room Fee", "Status"
+            }
+        ));
+        tblroom.setColorBackgoundHead(new java.awt.Color(255, 255, 255));
+        tblroom.setColorBordeFilas(new java.awt.Color(255, 255, 255));
+        tblroom.setColorBordeHead(new java.awt.Color(255, 255, 255));
+        tblroom.setColorFilasBackgound2(new java.awt.Color(255, 255, 255));
+        tblroom.setColorFilasForeground1(new java.awt.Color(61, 58, 87));
+        tblroom.setColorFilasForeground2(new java.awt.Color(61, 58, 87));
+        tblroom.setColorForegroundHead(new java.awt.Color(0, 0, 0));
+        tblroom.setColorSelBackgound(new java.awt.Color(61, 58, 87));
+        tblroom.setFont(new java.awt.Font("Helvetica Neue", 1, 13)); // NOI18N
+        tblroom.setFuenteFilas(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        tblroom.setFuenteFilasSelect(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        tblroom.setGridColor(new java.awt.Color(204, 204, 204));
+        tblroom.setRowHeight(30);
+        tblroom.setSelectionBackground(new java.awt.Color(61, 58, 87));
+        tblroom.setSelectionForeground(new java.awt.Color(255, 255, 255));
+        tblroom.setShowGrid(false);
+        tblroom.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblroomMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblroom);
+
+        jLabel5.setFont(new java.awt.Font("Helvetica Neue", 1, 24)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel5.setText("ROOM LIST");
+        jLabel5.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 10, 0, 0, new java.awt.Color(90, 84, 117)));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -338,20 +384,20 @@ public class manageRoom extends javax.swing.JInternalFrame {
                                 .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(150, 150, 150))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 718, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(336, 336, 336)
                                 .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGap(18, 18, 18)
                                 .addComponent(txtsearch, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(50, 50, 50)
+                .addGap(40, 40, 40)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -375,14 +421,19 @@ public class manageRoom extends javax.swing.JInternalFrame {
                     .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(50, 50, 50)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtsearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtsearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addGap(18, 18, 18))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(13, 13, 13)))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(69, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -448,7 +499,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
                     cmbrtype.setSelectedIndex(-1);
                     txtrfee.setText("");
                     cmbrstatus.setSelectedIndex(-1);
-
+                    autoUserID();
                     showRoom();
                 }
             }
@@ -494,6 +545,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
                 cmbrtype.setSelectedIndex(-1);
                 txtrfee.setText("");
                 cmbrstatus.setSelectedIndex(-1);
+                autoUserID();
                 showRoom();
 
             } else {
@@ -545,7 +597,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
                     cmbrtype.setSelectedIndex(-1);
                     txtrfee.setText("");
                     cmbrstatus.setSelectedIndex(-1);
-
+                    autoUserID();
                     showRoom();
                 }
             }
@@ -563,17 +615,25 @@ public class manageRoom extends javax.swing.JInternalFrame {
         cmbrtype.setSelectedIndex(-1);
         txtrfee.setText("");
         cmbrstatus.setSelectedIndex(-1);
+        autoUserID();
     }//GEN-LAST:event_jLabel14MouseClicked
 
     private void tblroomMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblroomMouseClicked
         int selectedRow = tblroom.getSelectedRow();
-         if (selectedRow != -1) {
-            txtrid.setText(tblroom.getValueAt(selectedRow, 0).toString()); 
+        if (selectedRow != -1) {
+            txtrid.setText(tblroom.getValueAt(selectedRow, 0).toString());
             cmbrtype.setSelectedItem(tblroom.getValueAt(selectedRow, 1).toString());
-            txtrfee.setText(tblroom.getValueAt(selectedRow, 2).toString()); 
-            cmbrstatus.setSelectedItem(tblroom.getValueAt(selectedRow, 3).toString());               
-            }   
+            txtrfee.setText(tblroom.getValueAt(selectedRow, 2).toString());
+            cmbrstatus.setSelectedItem(tblroom.getValueAt(selectedRow, 3).toString());
+        }
     }//GEN-LAST:event_tblroomMouseClicked
+
+    private void txtsearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtsearchKeyReleased
+        DefaultTableModel obj =(DefaultTableModel) tblroom.getModel();
+        TableRowSorter<DefaultTableModel> obj1=new TableRowSorter<>(obj);
+        tblroom.setRowSorter(obj1);
+        obj1.setRowFilter(RowFilter.regexFilter(txtsearch.getText()));
+    }//GEN-LAST:event_txtsearchKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -584,7 +644,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -596,7 +656,7 @@ public class manageRoom extends javax.swing.JInternalFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private org.jfree.util.ObjectTable objectTable1;
-    private javax.swing.JTable tblroom;
+    private rojerusan.RSTableMetro tblroom;
     private javax.swing.JTextField txtrfee;
     private javax.swing.JTextField txtrid;
     private javax.swing.JTextField txtsearch;
